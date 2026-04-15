@@ -1,0 +1,59 @@
+from django.db import models
+from django.contrib.auth.models import User
+
+class Tournament(models.Model):
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+    start_date = models.DateField()
+    end_date = models.DateField()
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+class Team(models.Model):
+    name = models.CharField(max_length=100)
+    logo_url = models.URLField(blank=True, null=True)
+    captain_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+class Player(models.Model):
+    team = models.ForeignKey(Team, related_name='players', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    role = models.CharField(max_length=50) # e.g., Batsman, Bowler, All-rounder
+
+    def __str__(self):
+        return self.name
+
+class Match(models.Model):
+    tournament = models.ForeignKey(Tournament, related_name='matches', on_delete=models.CASCADE)
+    team1 = models.ForeignKey(Team, related_name='matches_as_team1', on_delete=models.CASCADE)
+    team2 = models.ForeignKey(Team, related_name='matches_as_team2', on_delete=models.CASCADE)
+    match_date = models.DateTimeField()
+    status = models.CharField(max_length=20, choices=[('Upcoming', 'Upcoming'), ('Ongoing', 'Ongoing'), ('Completed', 'Completed')], default='Upcoming')
+    result = models.CharField(max_length=200, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.team1} vs {self.team2} - {self.match_date}"
+
+class ScoreUpdate(models.Model):
+    match = models.ForeignKey(Match, related_name='scores', on_delete=models.CASCADE)
+    score_details = models.CharField(max_length=255) # e.g., "India 150/2 (15.4)"
+    commentary = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Score for {self.match} at {self.updated_at}"
+
+class TournamentApplication(models.Model):
+    tournament = models.ForeignKey(Tournament, related_name='applications', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    team_name = models.CharField(max_length=100)
+    contact_number = models.CharField(max_length=15)
+    status = models.CharField(max_length=20, choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected')], default='Pending')
+    applied_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.team_name} application for {self.tournament}"
