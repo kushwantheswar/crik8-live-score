@@ -159,15 +159,51 @@ const MatchDetail = () => {
               </div>
               
               {match.latest_score ? (
-                <div className="relative pl-8 border-l-2 border-primary-500/30 space-y-8">
-                   <div className="relative">
-                     <div className="absolute -left-[41px] top-0 w-5 h-5 bg-primary-500 rounded-full border-4 border-slate-950"></div>
-                     <span className="text-xs font-bold text-primary-400 uppercase tracking-widest mb-2 block">Latest Update</span>
-                     <p className="text-xl text-white font-medium bg-white/5 p-4 rounded-xl border border-white/5">
-                       {match.latest_score.commentary || "Score updated: " + match.latest_score.score_details}
-                     </p>
+                <div className="space-y-8">
+                   {/* Live Middle Status */}
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="glass p-6 rounded-2xl border-white/5 bg-slate-900/40">
+                         <div className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-4">Batting</div>
+                         <div className="space-y-3">
+                            <div className="flex justify-between items-center group">
+                               <div className="flex items-center gap-2">
+                                  <div className="w-1.5 h-1.5 bg-primary-500 rounded-full shadow-[0_0_8px_rgba(var(--primary-500),0.8)]"></div>
+                                  <span className="font-bold text-white text-lg">{match.striker_name || 'Striker'}</span>
+                               </div>
+                               <span className="text-primary-400 font-black text-xl italic">0*</span>
+                            </div>
+                            <div className="flex justify-between items-center opacity-60">
+                               <div className="flex items-center gap-2">
+                                  <div className="w-1.5 h-1.5 bg-transparent rounded-full"></div>
+                                  <span className="font-bold text-white text-lg">{match.non_striker_name || 'Non-Striker'}</span>
+                               </div>
+                               <span className="text-white font-black text-xl italic">0</span>
+                            </div>
+                         </div>
+                      </div>
+                      <div className="glass p-6 rounded-2xl border-white/5 bg-slate-900/40">
+                         <div className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-4">Bowling</div>
+                         <div className="flex justify-between items-center">
+                            <span className="font-bold text-white text-lg">{match.bowler_name || 'Current Bowler'}</span>
+                            <div className="text-right">
+                               <div className="text-primary-400 font-black text-xl italic">0-0</div>
+                               <div className="text-[10px] uppercase text-slate-500 font-bold tracking-tight">(0.0)</div>
+                            </div>
+                         </div>
+                      </div>
                    </div>
-                   <div className="opacity-50 text-center pt-8 border-t border-white/5 text-sm uppercase tracking-widest font-bold">Waiting for next ball...</div>
+
+                   {/* Commentary Feed */}
+                   <div className="relative pl-8 border-l-2 border-primary-500/30 space-y-8 mt-10">
+                      <div className="relative">
+                        <div className="absolute -left-[41px] top-0 w-5 h-5 bg-primary-500 rounded-full border-4 border-slate-950"></div>
+                        <span className="text-xs font-bold text-primary-400 uppercase tracking-widest mb-2 block">Latest Update</span>
+                        <p className="text-xl text-white font-medium bg-white/5 p-4 rounded-xl border border-white/5">
+                          {match.latest_score.commentary || "Score updated: " + match.latest_score.score_details}
+                        </p>
+                      </div>
+                      <div className="opacity-50 text-center pt-8 border-t border-white/5 text-sm uppercase tracking-widest font-bold">Waiting for next ball...</div>
+                   </div>
                 </div>
               ) : (
                 <div className="text-center py-20 text-slate-500">Live commentary will appear here once the match begins.</div>

@@ -23,7 +23,10 @@ const AdminDashboard = () => {
   });
   
   const [selectedMatchForScore, setSelectedMatchForScore] = useState(null);
-  const [scoreForm, setScoreForm] = useState({ status: '', score_details: '', commentary: '', toss_details: '' });
+  const [scoreForm, setScoreForm] = useState({ 
+    status: '', score_details: '', commentary: '', toss_details: '',
+    current_striker: '', current_non_striker: '', current_bowler: ''
+  });
 
   useEffect(() => {
     fetchData();
@@ -122,10 +125,18 @@ const AdminDashboard = () => {
   const handleUpdateScore = async (e) => {
     e.preventDefault();
     try {
-      if (scoreForm.status !== selectedMatchForScore.status || scoreForm.toss_details !== selectedMatchForScore.toss_details) {
+      if (scoreForm.status !== selectedMatchForScore.status || 
+          scoreForm.toss_details !== selectedMatchForScore.toss_details ||
+          scoreForm.current_striker !== selectedMatchForScore.current_striker ||
+          scoreForm.current_non_striker !== selectedMatchForScore.current_non_striker ||
+          scoreForm.current_bowler !== selectedMatchForScore.current_bowler
+      ) {
          await api.patch(`matches/${selectedMatchForScore.id}/`, { 
             status: scoreForm.status,
-            toss_details: scoreForm.toss_details 
+            toss_details: scoreForm.toss_details,
+            current_striker: scoreForm.current_striker || null,
+            current_non_striker: scoreForm.current_non_striker || null,
+            current_bowler: scoreForm.current_bowler || null
          });
       }
       if (scoreForm.score_details) {
@@ -238,7 +249,10 @@ const AdminDashboard = () => {
                                 status: match.status, 
                                 score_details: match.latest_score?.score_details || '', 
                                 commentary: '',
-                                toss_details: match.toss_details || ''
+                                toss_details: match.toss_details || '',
+                                current_striker: match.current_striker || '',
+                                current_non_striker: match.current_non_striker || '',
+                                current_bowler: match.current_bowler || ''
                              });
                           }}
                           className="p-2 text-slate-500 hover:text-white"
@@ -419,6 +433,37 @@ const AdminDashboard = () => {
                  <div>
                     <label className="block text-xs uppercase text-slate-500 font-bold mb-1">Toss Details</label>
                     <input className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white outline-none" placeholder="e.g. MI won toss & choose to Bat" value={scoreForm.toss_details} onChange={e => setScoreForm({...scoreForm, toss_details: e.target.value})}/>
+                 </div>
+
+                 <div className="grid grid-cols-2 gap-4 bg-primary-500/5 p-4 rounded-xl border border-primary-500/10">
+                    <div className="col-span-2 text-[10px] font-black uppercase text-primary-400 tracking-wider">Active Middle</div>
+                    <div className="space-y-1">
+                       <label className="block text-[10px] uppercase text-slate-500 font-bold">Striker</label>
+                       <select className="w-full bg-slate-900/50 border border-white/10 rounded-lg py-2 px-3 text-xs text-white outline-none" value={scoreForm.current_striker} onChange={e => setScoreForm({...scoreForm, current_striker: e.target.value})}>
+                          <option value="">Select Batter</option>
+                          {players.filter(p => p.team === selectedMatchForScore.team1 || p.team === selectedMatchForScore.team2).map(p => (
+                             <option key={p.id} value={p.id}>{p.name}</option>
+                          ))}
+                       </select>
+                    </div>
+                    <div className="space-y-1">
+                       <label className="block text-[10px] uppercase text-slate-500 font-bold">Non-Striker</label>
+                       <select className="w-full bg-slate-900/50 border border-white/10 rounded-lg py-2 px-3 text-xs text-white outline-none" value={scoreForm.current_non_striker} onChange={e => setScoreForm({...scoreForm, current_non_striker: e.target.value})}>
+                          <option value="">Select Batter</option>
+                          {players.filter(p => p.team === selectedMatchForScore.team1 || p.team === selectedMatchForScore.team2).map(p => (
+                             <option key={p.id} value={p.id}>{p.name}</option>
+                          ))}
+                       </select>
+                    </div>
+                    <div className="col-span-2 space-y-1">
+                       <label className="block text-[10px] uppercase text-slate-500 font-bold">Current Bowler</label>
+                       <select className="w-full bg-slate-900/50 border border-white/10 rounded-lg py-2 px-3 text-xs text-white outline-none" value={scoreForm.current_bowler} onChange={e => setScoreForm({...scoreForm, current_bowler: e.target.value})}>
+                          <option value="">Select Bowler</option>
+                          {players.filter(p => p.team === selectedMatchForScore.team1 || p.team === selectedMatchForScore.team2).map(p => (
+                             <option key={p.id} value={p.id}>{p.name}</option>
+                          ))}
+                       </select>
+                    </div>
                  </div>
                  
                  <div>
