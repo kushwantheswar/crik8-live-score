@@ -213,13 +213,13 @@ const MatchDetail = () => {
 
          {activeTab === 'scorecard' && (
            <div className="space-y-12">
-              {[match.team1_name, match.team2_name].map((teamName, idx) => (
+              {[ {name: match.team1_name, id: match.team1}, {name: match.team2_name, id: match.team2} ].map((team, idx) => (
                 <div key={idx} className="space-y-6">
                   <div className="flex justify-between items-center bg-slate-900/80 p-6 rounded-2xl border border-white/5">
-                    <h3 className="text-xl font-black text-primary-400 uppercase tracking-tighter">{teamName} <span className="text-slate-500 ml-2">Innings</span></h3>
+                    <h3 className="text-xl font-black text-primary-400 uppercase tracking-tighter">{team.name} <span className="text-slate-500 ml-2">Innings</span></h3>
                     <div className="text-right">
-                       <span className="text-2xl font-black text-white">0/0</span>
-                       <span className="text-slate-500 text-xs ml-2 uppercase font-bold tracking-widest">(0.0 Ov)</span>
+                       <span className="text-2xl font-black text-white">{match.total_runs}/{match.total_wickets}</span>
+                       <span className="text-slate-500 text-xs ml-2 uppercase font-bold tracking-widest">({match.current_over}.{match.current_over_balls} Ov)</span>
                     </div>
                   </div>
 
@@ -236,14 +236,23 @@ const MatchDetail = () => {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5 text-sm">
-                         <tr className="hover:bg-white/5 transition-colors">
-                           <td className="p-4 font-bold text-white">Batters to be decided</td>
-                           <td className="p-4 text-center">0</td>
-                           <td className="p-4 text-center">0</td>
-                           <td className="p-4 text-center">0</td>
-                           <td className="p-4 text-center">0</td>
-                           <td className="p-4 text-right text-slate-500">0.00</td>
-                         </tr>
+                         {match.batting_scores?.filter(s => s.player_team === team.id || true).map(score => (
+                            <tr key={score.id} className="hover:bg-white/5 transition-colors">
+                              <td className="p-4 font-bold text-white">{score.player_name} {score.is_out ? '(out)' : '*'}</td>
+                              <td className="p-4 text-center">{score.runs}</td>
+                              <td className="p-4 text-center">{score.balls}</td>
+                              <td className="p-4 text-center">{score.fours}</td>
+                              <td className="p-4 text-center">{score.sixes}</td>
+                              <td className="p-4 text-right text-slate-500">
+                                {score.balls > 0 ? ((score.runs / score.balls) * 100).toFixed(2) : '0.00'}
+                              </td>
+                            </tr>
+                         ))}
+                         {(!match.batting_scores || match.batting_scores.length === 0) && (
+                            <tr className="hover:bg-white/5 transition-colors">
+                              <td colSpan="6" className="p-4 text-center text-slate-500">Wait for innings to start...</td>
+                            </tr>
+                         )}
                       </tbody>
                     </table>
                   </div>
@@ -261,14 +270,18 @@ const MatchDetail = () => {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5 text-sm">
-                         <tr className="hover:bg-white/5 transition-colors">
-                           <td className="p-4 font-bold text-white">Bowlers to be decided</td>
-                           <td className="p-4 text-center">0.0</td>
-                           <td className="p-4 text-center">0</td>
-                           <td className="p-4 text-center">0</td>
-                           <td className="p-4 text-center">0</td>
-                           <td className="p-4 text-right text-slate-500">0.00</td>
-                         </tr>
+                         {match.bowling_scores?.map(score => (
+                            <tr key={score.id} className="hover:bg-white/5 transition-colors">
+                              <td className="p-4 font-bold text-white">{score.player_name}</td>
+                              <td className="p-4 text-center">{score.overs}</td>
+                              <td className="p-4 text-center">{score.maidens}</td>
+                              <td className="p-4 text-center">{score.runs_conceded}</td>
+                              <td className="p-4 text-center">{score.wickets}</td>
+                              <td className="p-4 text-right text-slate-500">
+                                {score.overs > 0 ? (score.runs_conceded / score.overs).toFixed(2) : '0.00'}
+                              </td>
+                            </tr>
+                         ))}
                       </tbody>
                     </table>
                   </div>
