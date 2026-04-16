@@ -25,10 +25,15 @@ const Navbar = () => {
           
           {user ? (
             <>
-              {user.is_staff && (
+              {user.is_staff ? (
                 <Link to="/admin" className="flex items-center gap-1 hover:text-primary-400 transition-colors">
                   <LayoutDashboard size={18} />
                   Dashboard
+                </Link>
+              ) : (
+                <Link to="/profile" className="flex items-center gap-1 hover:text-primary-400 transition-colors">
+                  <User size={18} />
+                  Profile
                 </Link>
               )}
               <div className="flex items-center gap-4 pl-4 border-l border-white/10">

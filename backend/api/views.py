@@ -50,6 +50,21 @@ class PlayerViewSet(viewsets.ModelViewSet):
     serializer_class = PlayerSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        if request.user.is_authenticated:
+            try:
+                player = Player.objects.get(user=request.user)
+                serializer = self.get_serializer(player)
+                return Response(serializer.data)
+            except Player.DoesNotExist:
+                return Response({'detail': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Not authenticated.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
 class MatchViewSet(viewsets.ModelViewSet):
     queryset = Match.objects.all()
     serializer_class = MatchSerializer

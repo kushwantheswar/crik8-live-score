@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Plus, Users, Trophy, SwatchBook, Save, Trash2 } from 'lucide-react';
+import { Plus, Users, Trophy, SwatchBook, Save, Trash2, User, MapPin } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('matches');
   const [teams, setTeams] = useState([]);
   const [tournaments, setTournaments] = useState([]);
   const [matches, setMatches] = useState([]);
+  const [players, setPlayers] = useState([]);
+  
+  // Player filters
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
   
   // Form states
   const [newTeam, setNewTeam] = useState({ name: '', captain_name: '' });
@@ -20,14 +25,16 @@ const AdminDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [tRes, tourRes, mRes] = await Promise.all([
+      const [tRes, tourRes, mRes, pRes] = await Promise.all([
         api.get('teams/'),
         api.get('tournaments/'),
-        api.get('matches/')
+        api.get('matches/'),
+        api.get('players/')
       ]);
       setTeams(tRes.data);
       setTournaments(tourRes.data);
       setMatches(mRes.data);
+      setPlayers(pRes.data);
     } catch (err) {
       console.error(err);
     }
@@ -69,6 +76,7 @@ const AdminDashboard = () => {
           { id: 'matches', icon: Trophy, label: 'Matches' },
           { id: 'teams', icon: Users, label: 'Teams' },
           { id: 'tournaments', icon: Trophy, label: 'Tournaments' },
+          { id: 'players', icon: User, label: 'Players' },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -125,6 +133,51 @@ const AdminDashboard = () => {
                      </td>
                    </tr>
                  ))}
+                 {activeTab === 'players' && (() => {
+                   const uniqueStates = [...new Set(players.map(p => p.state).filter(Boolean))];
+                   const uniqueCities = [...new Set(players.filter(p => !selectedState || p.state === selectedState).map(p => p.city).filter(Boolean))];
+                   const filteredPlayers = players.filter(p => {
+                     if (selectedState && p.state !== selectedState) return false;
+                     if (selectedCity && p.city !== selectedCity) return false;
+                     return true;
+                   });
+                   return (
+                     <>
+                       <tr>
+                         <td colSpan="3" className="p-4 bg-slate-900/50">
+                           <div className="flex gap-4">
+                             <select className="bg-slate-800 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none w-48" value={selectedState} onChange={e => { setSelectedState(e.target.value); setSelectedCity(''); }}>
+                               <option value="">All States</option>
+                               {uniqueStates.map(state => <option key={state} value={state}>{state}</option>)}
+                             </select>
+                             <select className="bg-slate-800 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none w-48" value={selectedCity} onChange={e => setSelectedCity(e.target.value)}>
+                               <option value="">All Cities</option>
+                               {uniqueCities.map(city => <option key={city} value={city}>{city}</option>)}
+                             </select>
+                           </div>
+                         </td>
+                       </tr>
+                       {filteredPlayers.map(player => (
+                         <tr key={player.id} className="hover:bg-white/2">
+                           <td className="p-6">
+                              <div className="font-bold flex items-center gap-2">{player.name} <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full text-[10px] uppercase font-bold">{player.role}</span></div>
+                              <div className="text-xs text-slate-500 flex gap-1 mt-1 items-center"><MapPin size={12}/> {player.village ? player.village+', ' : ''}{player.city}, {player.state}</div>
+                           </td>
+                           <td className="p-6">
+                              <div className="text-sm font-medium">{player.mobile_number}</div>
+                              <div className="text-xs text-slate-400">{player.email}</div>
+                           </td>
+                           <td className="p-6 text-right">
+                             <button className="p-2 text-slate-500 hover:text-red-400"><Trash2 size={18} /></button>
+                           </td>
+                         </tr>
+                       ))}
+                       {filteredPlayers.length === 0 && (
+                         <tr><td colSpan="3" className="p-8 text-center text-slate-500">No players found matching this criteria.</td></tr>
+                       )}
+                     </>
+                   )
+                 })()}
               </tbody>
             </table>
           </div>
@@ -135,10 +188,15 @@ const AdminDashboard = () => {
           <div className="glass p-8 rounded-3xl border-primary-500/20">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
               <Plus className="text-primary-500" />
-              {activeTab === 'teams' ? 'Add New Team' : 'Schedule Match'}
+              {activeTab === 'teams' ? 'Add New Team' : activeTab === 'players' ? 'Player Invites' : 'Schedule Match'}
             </h3>
             
-            {activeTab === 'teams' ? (
+            {activeTab === 'players' ? (
+              <div className="text-center p-4">
+                <User className="mx-auto text-slate-500 mb-2" size={48} />
+                <p className="text-slate-400 text-sm">Players register themselves from the frontend via the Profile page.</p>
+              </div>
+            ) : activeTab === 'teams' ? (
               <form onSubmit={handleCreateTeam} className="space-y-4">
                 <input 
                   className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4" 
