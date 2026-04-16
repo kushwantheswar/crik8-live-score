@@ -49,12 +49,28 @@ class ScoreUpdateSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {'match': {'read_only': True}}
 
+class BattingScoreSerializer(serializers.ModelSerializer):
+    player_name = serializers.CharField(source='player.name', read_only=True)
+    class Meta:
+        model = BattingScore
+        fields = '__all__'
+        extra_kwargs = {'match': {'read_only': True}}
+
+class BowlingScoreSerializer(serializers.ModelSerializer):
+    player_name = serializers.CharField(source='player.name', read_only=True)
+    class Meta:
+        model = BowlingScore
+        fields = '__all__'
+        extra_kwargs = {'match': {'read_only': True}}
+
 class MatchSerializer(serializers.ModelSerializer):
     team1_name = serializers.CharField(source='team1.name', read_only=True)
     team2_name = serializers.CharField(source='team2.name', read_only=True)
     striker_name = serializers.CharField(source='current_striker.name', read_only=True)
     non_striker_name = serializers.CharField(source='current_non_striker.name', read_only=True)
     bowler_name = serializers.CharField(source='current_bowler.name', read_only=True)
+    batting_scores = BattingScoreSerializer(many=True, read_only=True)
+    bowling_scores = BowlingScoreSerializer(many=True, read_only=True)
     latest_score = serializers.SerializerMethodField()
 
     class Meta:

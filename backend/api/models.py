@@ -56,10 +56,39 @@ class Match(models.Model):
     current_striker = models.ForeignKey(Player, related_name='active_strikes', on_delete=models.SET_NULL, null=True, blank=True)
     current_non_striker = models.ForeignKey(Player, related_name='active_non_strikes', on_delete=models.SET_NULL, null=True, blank=True)
     current_bowler = models.ForeignKey(Player, related_name='active_bowls', on_delete=models.SET_NULL, null=True, blank=True)
+    total_runs = models.IntegerField(default=0)
+    total_wickets = models.IntegerField(default=0)
+    current_over = models.IntegerField(default=0)
+    current_over_balls = models.IntegerField(default=0)
     result = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.team1} vs {self.team2} - {self.match_date}"
+        return f"{self.team1.name} vs {self.team2.name}"
+
+class BattingScore(models.Model):
+    match = models.ForeignKey(Match, related_name='batting_scores', on_delete=models.CASCADE)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    runs = models.IntegerField(default=0)
+    balls = models.IntegerField(default=0)
+    fours = models.IntegerField(default=0)
+    sixes = models.IntegerField(default=0)
+    is_out = models.BooleanField(default=False)
+    how_out = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        unique_together = ('match', 'player')
+
+class BowlingScore(models.Model):
+    match = models.ForeignKey(Match, related_name='bowling_scores', on_delete=models.CASCADE)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    overs = models.FloatField(default=0.0)
+    balls_bowled = models.IntegerField(default=0)
+    maidens = models.IntegerField(default=0)
+    runs_conceded = models.IntegerField(default=0)
+    wickets = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ('match', 'player')
 
 class ScoreUpdate(models.Model):
     match = models.ForeignKey(Match, related_name='scores', on_delete=models.CASCADE)
