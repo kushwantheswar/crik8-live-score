@@ -70,24 +70,26 @@ const Register = () => {
 
     setLoading(true);
     try {
-      setSuccess(true);
-      await new Promise((r) => setTimeout(r, 800)); // brief success flash
+      // Call the API first — only show success AFTER it works
       const user = await register({
         username: form.username,
         email: form.email,
         password: form.password,
       });
+      setSuccess(true); // show success only on real success
       if (user?.is_staff) navigate('/admin');
       else navigate('/');
     } catch (err) {
       setSuccess(false);
       const data = err?.response?.data;
-      if (data?.username) setError(`Username: ${data.username[0]}`);
-      else if (data?.email) setError(`Email: ${data.email[0]}`);
-      else if (data?.password) setError(`Password: ${data.password[0]}`);
+      if (data?.username) setError(`Username: ${Array.isArray(data.username) ? data.username[0] : data.username}`);
+      else if (data?.email) setError(`Email: ${Array.isArray(data.email) ? data.email[0] : data.email}`);
+      else if (data?.password) setError(`Password: ${Array.isArray(data.password) ? data.password[0] : data.password}`);
+      else if (data?.detail) setError(data.detail);
       else setError('Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

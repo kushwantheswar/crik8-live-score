@@ -4,14 +4,23 @@ import api from '../api/axios';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    // Initialise synchronously from localStorage so ProtectedRoute
+    // doesn't see null on the very first render after login.
+    try {
+      const token = localStorage.getItem('token');
+      const stored = localStorage.getItem('user');
+      if (token && stored) return JSON.parse(stored);
+    } catch (_) {}
+    return null;
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // After mount verify token is still there (handles tab close / clear)
     const token = localStorage.getItem('token');
-    if (token) {
-      const userData = JSON.parse(localStorage.getItem('user'));
-      if (userData) setUser(userData);
+    if (!token) {
+      setUser(null);
     }
     setLoading(false);
   }, []);
@@ -22,13 +31,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('token', access);
     localStorage.setItem('refresh', refresh);
 
-    // Fetch the authenticated user's profile from /me/
+    // Fetch profile using the just-obtained token
     const meRes = await api.get('me/', {
       headers: { Authorization: `Bearer ${access}` },
     });
     const currentUser = meRes.data;
     localStorage.setItem('user', JSON.stringify(currentUser));
-    setUser(currentUser);
+    setUser(currentUser);    // sync update — React batches this before navigate
     return currentUser;
   };
 
@@ -53,4 +62,3 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
-
