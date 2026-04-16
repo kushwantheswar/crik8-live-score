@@ -89,6 +89,36 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleRemovePlayer = async (playerId) => {
+    if (!window.confirm("Remove player from team?")) return;
+    try {
+      await api.patch(`players/${playerId}/`, { team: null });
+      fetchData();
+    } catch (err) {
+      alert("Error removing player");
+    }
+  };
+
+  const handleDeleteTeam = async (id) => {
+    if (!window.confirm("Delete team?")) return;
+    try { await api.delete(`teams/${id}/`); fetchData(); } catch (err) {}
+  };
+
+  const handleDeleteMatch = async (id) => {
+    if (!window.confirm("Delete match?")) return;
+    try { await api.delete(`matches/${id}/`); fetchData(); } catch (err) {}
+  };
+
+  const handleDeleteTournament = async (id) => {
+    if (!window.confirm("Delete tournament?")) return;
+    try { await api.delete(`tournaments/${id}/`); fetchData(); } catch (err) {}
+  };
+  
+  const handleDeletePlayer = async (id) => {
+    if (!window.confirm("Delete player?")) return;
+    try { await api.delete(`players/${id}/`); fetchData(); } catch(err) {}
+  };
+
   const handleUpdateScore = async (e) => {
     e.preventDefault();
     try {
@@ -173,7 +203,7 @@ const AdminDashboard = () => {
                        >
                          <Activity size={18} />
                        </button>
-                       <button className="p-2 text-slate-500 hover:text-red-400"><Trash2 size={18} /></button>
+                       <button onClick={() => handleDeleteMatch(match.id)} className="p-2 text-slate-500 hover:text-red-400"><Trash2 size={18} /></button>
                      </td>
                    </tr>
                  ))}
@@ -188,7 +218,7 @@ const AdminDashboard = () => {
                         <div className="text-xs text-slate-500">{tour.start_date} to {tour.end_date}</div>
                      </td>
                      <td className="p-6 text-right">
-                       <button className="p-2 text-slate-500 hover:text-red-400"><Trash2 size={18} /></button>
+                       <button onClick={() => handleDeleteTournament(tour.id)} className="p-2 text-slate-500 hover:text-red-400"><Trash2 size={18} /></button>
                      </td>
                    </tr>
                  ))}
@@ -210,9 +240,18 @@ const AdminDashboard = () => {
                              <option key={p.id} value={p.id}>{p.name} ({p.role})</option>
                           ))}
                         </select>
+                        {team.players && team.players.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-3">
+                             {team.players.map(p => (
+                               <span key={p.id} className="text-[10px] bg-slate-900 px-2 py-1 flex items-center gap-1 rounded-md border border-white/5">
+                                 {p.name} <button onClick={() => handleRemovePlayer(p.id)} className="text-red-500 hover:text-red-400 ml-1 font-black">×</button>
+                               </span>
+                             ))}
+                          </div>
+                        )}
                      </td>
                      <td className="p-6 text-right">
-                       <button className="p-2 text-slate-500 hover:text-red-400"><Trash2 size={18} /></button>
+                       <button onClick={() => handleDeleteTeam(team.id)} className="p-2 text-slate-500 hover:text-red-400"><Trash2 size={18} /></button>
                      </td>
                    </tr>
                  ))}
@@ -251,7 +290,7 @@ const AdminDashboard = () => {
                               <div className="text-xs text-slate-400">{player.email}</div>
                            </td>
                            <td className="p-6 text-right">
-                             <button className="p-2 text-slate-500 hover:text-red-400"><Trash2 size={18} /></button>
+                             <button onClick={() => handleDeletePlayer(player.id)} className="p-2 text-slate-500 hover:text-red-400"><Trash2 size={18} /></button>
                            </td>
                          </tr>
                        ))}

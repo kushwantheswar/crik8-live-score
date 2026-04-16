@@ -22,7 +22,10 @@ const Home = () => {
       }
       setLoading(false);
     };
+    
     fetchData();
+    const interval = setInterval(fetchData, 10000); // 10s auto-refresh
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) return (
