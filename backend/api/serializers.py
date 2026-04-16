@@ -3,25 +3,16 @@ from .models import Tournament, Team, Player, Match, ScoreUpdate, TournamentAppl
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=8)
+    password = serializers.CharField(write_only=True, min_length=6)
     email = serializers.EmailField(required=False, allow_blank=True, default='')
 
     class Meta:
         model = User
         fields = ['id', 'username', 'password', 'email', 'is_staff']
 
-    def validate_password(self, value):
-        from django.contrib.auth.password_validation import validate_password
-        from django.core.exceptions import ValidationError as DjangoValidationError
-        try:
-            validate_password(value)
-        except DjangoValidationError as e:
-            raise serializers.ValidationError(list(e.messages))
-        return value
-
     def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError("A user with that username already exists.")
+        if User.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError("This username is already taken.")
         return value
 
     def create(self, validated_data):
@@ -32,6 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
             email=email,
         )
         return user
+
 
 
 
