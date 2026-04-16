@@ -3,11 +3,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
-from .models import Tournament, Team, Player, Match, ScoreUpdate, TournamentApplication
+from .models import Tournament, Team, Player, Match, ScoreUpdate, TournamentApplication, BattingScore, BowlingScore
 from .serializers import (
     UserSerializer, TournamentSerializer, TeamSerializer, 
     PlayerSerializer, MatchSerializer, ScoreUpdateSerializer, 
-    TournamentApplicationSerializer
+    TournamentApplicationSerializer, BattingScoreSerializer, BowlingScoreSerializer
 )
 
 # Public registration endpoint
