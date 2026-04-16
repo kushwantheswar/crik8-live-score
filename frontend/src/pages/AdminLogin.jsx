@@ -28,7 +28,13 @@ const AdminLogin = () => {
         navigate('/admin');
       }
     } catch (err) {
-      setError('Invalid admin credentials');
+      if (!err.response) {
+        setError('Connection to server failed. Please ensure the backend is running.');
+      } else if (err.response.status === 401) {
+        setError('Invalid admin credentials.');
+      } else {
+        setError('An unexpected error occurred. Please try again later.');
+      }
     }
     setLoading(false);
   };
