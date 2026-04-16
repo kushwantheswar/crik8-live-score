@@ -91,10 +91,20 @@ const MatchDetail = () => {
              {match.latest_score ? (
                 <>
                   <h1 className="text-5xl font-black text-primary-400 mb-2">{match.latest_score.score_details}</h1>
+                  {match.toss_details && (
+                    <div className="bg-primary-500/10 text-primary-400 text-xs font-bold uppercase tracking-widest py-1 px-4 rounded-full w-fit mx-auto mb-4 border border-primary-500/20">
+                      TOSS: {match.toss_details}
+                    </div>
+                  )}
                   <p className="text-slate-400 max-w-2xl mx-auto italic">{match.latest_score.commentary}</p>
                 </>
              ) : (
-                <h1 className="text-2xl font-bold text-slate-500">Match hasn't started yet</h1>
+                <>
+                  <h1 className="text-2xl font-bold text-slate-500 mb-2">Match hasn't started yet</h1>
+                  {match.toss_details && (
+                     <div className="text-primary-400 text-sm font-bold uppercase tracking-widest italic">{match.toss_details}</div>
+                  )}
+                </>
              )}
           </div>
         </div>
@@ -166,24 +176,68 @@ const MatchDetail = () => {
          )}
 
          {activeTab === 'scorecard' && (
-           <div>
-              <h3 className="text-2xl font-bold text-white mb-6">Detailed Scorecard</h3>
-              <div className="bg-slate-900/50 rounded-2xl overflow-hidden border border-white/5 mb-8">
-                 <div className="bg-primary-600/20 px-6 py-4 border-b border-white/5">
-                   <h4 className="font-black text-primary-400">{match.team1_name} Innings</h4>
-                 </div>
-                 <div className="p-10 text-center text-slate-500">
-                    Detailed Batting & Bowling figures will sync here shortly.
-                 </div>
-              </div>
-              <div className="bg-slate-900/50 rounded-2xl overflow-hidden border border-white/5">
-                 <div className="bg-primary-600/20 px-6 py-4 border-b border-white/5">
-                   <h4 className="font-black text-primary-400">{match.team2_name} Innings</h4>
-                 </div>
-                 <div className="p-10 text-center text-slate-500">
-                    Detailed Batting & Bowling figures will sync here shortly.
-                 </div>
-              </div>
+           <div className="space-y-12">
+              {[match.team1_name, match.team2_name].map((teamName, idx) => (
+                <div key={idx} className="space-y-6">
+                  <div className="flex justify-between items-center bg-slate-900/80 p-6 rounded-2xl border border-white/5">
+                    <h3 className="text-xl font-black text-primary-400 uppercase tracking-tighter">{teamName} <span className="text-slate-500 ml-2">Innings</span></h3>
+                    <div className="text-right">
+                       <span className="text-2xl font-black text-white">0/0</span>
+                       <span className="text-slate-500 text-xs ml-2 uppercase font-bold tracking-widest">(0.0 Ov)</span>
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto rounded-2xl border border-white/5">
+                    <table className="w-full text-left bg-white/2">
+                      <thead className="bg-slate-900 text-[10px] uppercase font-bold text-slate-500 tracking-widest border-b border-white/5">
+                        <tr>
+                          <th className="p-4">Batter</th>
+                          <th className="p-4 text-center">R</th>
+                          <th className="p-4 text-center">B</th>
+                          <th className="p-4 text-center">4s</th>
+                          <th className="p-4 text-center">6s</th>
+                          <th className="p-4 text-right">SR</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5 text-sm">
+                         <tr className="hover:bg-white/5 transition-colors">
+                           <td className="p-4 font-bold text-white">Batters to be decided</td>
+                           <td className="p-4 text-center">0</td>
+                           <td className="p-4 text-center">0</td>
+                           <td className="p-4 text-center">0</td>
+                           <td className="p-4 text-center">0</td>
+                           <td className="p-4 text-right text-slate-500">0.00</td>
+                         </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="overflow-x-auto rounded-2xl border border-white/5">
+                    <table className="w-full text-left bg-white/2">
+                      <thead className="bg-slate-900 text-[10px] uppercase font-bold text-slate-500 tracking-widest border-b border-white/5">
+                        <tr>
+                          <th className="p-4">Bowler</th>
+                          <th className="p-4 text-center">O</th>
+                          <th className="p-4 text-center">M</th>
+                          <th className="p-4 text-center">R</th>
+                          <th className="p-4 text-center">W</th>
+                          <th className="p-4 text-right">ECO</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5 text-sm">
+                         <tr className="hover:bg-white/5 transition-colors">
+                           <td className="p-4 font-bold text-white">Bowlers to be decided</td>
+                           <td className="p-4 text-center">0.0</td>
+                           <td className="p-4 text-center">0</td>
+                           <td className="p-4 text-center">0</td>
+                           <td className="p-4 text-center">0</td>
+                           <td className="p-4 text-right text-slate-500">0.00</td>
+                         </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))}
            </div>
          )}
 

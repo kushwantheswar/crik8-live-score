@@ -23,7 +23,7 @@ const AdminDashboard = () => {
   });
   
   const [selectedMatchForScore, setSelectedMatchForScore] = useState(null);
-  const [scoreForm, setScoreForm] = useState({ status: '', score_details: '', commentary: '' });
+  const [scoreForm, setScoreForm] = useState({ status: '', score_details: '', commentary: '', toss_details: '' });
 
   useEffect(() => {
     fetchData();
@@ -122,8 +122,11 @@ const AdminDashboard = () => {
   const handleUpdateScore = async (e) => {
     e.preventDefault();
     try {
-      if (scoreForm.status !== selectedMatchForScore.status) {
-         await api.patch(`matches/${selectedMatchForScore.id}/`, { status: scoreForm.status });
+      if (scoreForm.status !== selectedMatchForScore.status || scoreForm.toss_details !== selectedMatchForScore.toss_details) {
+         await api.patch(`matches/${selectedMatchForScore.id}/`, { 
+            status: scoreForm.status,
+            toss_details: scoreForm.toss_details 
+         });
       }
       if (scoreForm.score_details) {
          await api.post(`matches/${selectedMatchForScore.id}/update_score/`, {
@@ -231,7 +234,12 @@ const AdminDashboard = () => {
                        <button 
                           onClick={() => {
                              setSelectedMatchForScore(match);
-                             setScoreForm({ status: match.status, score_details: match.latest_score?.score_details || '', commentary: '' });
+                             setScoreForm({ 
+                                status: match.status, 
+                                score_details: match.latest_score?.score_details || '', 
+                                commentary: '',
+                                toss_details: match.toss_details || ''
+                             });
                           }}
                           className="p-2 text-slate-500 hover:text-white"
                           title="Live Update Scoreboard"
@@ -406,6 +414,11 @@ const AdminDashboard = () => {
                        <option value="Ongoing">Ongoing (Live)</option>
                        <option value="Completed">Completed</option>
                    </select>
+                 </div>
+
+                 <div>
+                    <label className="block text-xs uppercase text-slate-500 font-bold mb-1">Toss Details</label>
+                    <input className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white outline-none" placeholder="e.g. MI won toss & choose to Bat" value={scoreForm.toss_details} onChange={e => setScoreForm({...scoreForm, toss_details: e.target.value})}/>
                  </div>
                  
                  <div>

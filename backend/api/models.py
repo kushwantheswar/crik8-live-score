@@ -52,6 +52,7 @@ class Match(models.Model):
     team2 = models.ForeignKey(Team, related_name='matches_as_team2', on_delete=models.CASCADE)
     match_date = models.DateTimeField()
     status = models.CharField(max_length=20, choices=[('Upcoming', 'Upcoming'), ('Ongoing', 'Ongoing'), ('Completed', 'Completed')], default='Upcoming')
+    toss_details = models.CharField(max_length=255, blank=True, null=True)
     result = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
