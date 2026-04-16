@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Tournament, Team, Player, Match, ScoreUpdate, TournamentApplication
+from .models import Tournament, Team, Player, Match, ScoreUpdate, TournamentApplication, BattingScore, BowlingScore
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
