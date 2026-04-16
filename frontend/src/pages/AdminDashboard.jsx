@@ -66,7 +66,7 @@ const AdminDashboard = () => {
 
       <div className="flex gap-4 p-1 glass rounded-2xl w-fit">
         {[
-          { id: 'matches', icon: trophy, label: 'Matches' },
+          { id: 'matches', icon: Trophy, label: 'Matches' },
           { id: 'teams', icon: Users, label: 'Teams' },
           { id: 'tournaments', icon: Trophy, label: 'Tournaments' },
         ].map((tab) => (
