@@ -10,27 +10,32 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-        // In a real app, you'd verify the token or fetch user profile
-        const userData = JSON.parse(localStorage.getItem('user'));
-        if (userData) setUser(userData);
+      const userData = JSON.parse(localStorage.getItem('user'));
+      if (userData) setUser(userData);
     }
     setLoading(false);
   }, []);
 
   const login = async (username, password) => {
     const response = await api.post('token/', { username, password });
-    localStorage.setItem('token', response.data.access);
-    localStorage.setItem('refresh', response.data.refresh);
-    
-    // Fetch user details or decode token
-    // For simplicity, we'll assume the API returns enough or we fetch it
-    // Let's mock a user fetch
-    const userRes = await api.get('users/'); 
-    const currentUser = userRes.data.find(u => u.username === username);
-    
+    const { access, refresh } = response.data;
+    localStorage.setItem('token', access);
+    localStorage.setItem('refresh', refresh);
+
+    // Fetch the authenticated user's profile from /me/
+    const meRes = await api.get('me/', {
+      headers: { Authorization: `Bearer ${access}` },
+    });
+    const currentUser = meRes.data;
     localStorage.setItem('user', JSON.stringify(currentUser));
     setUser(currentUser);
     return currentUser;
+  };
+
+  const register = async ({ username, email, password }) => {
+    await api.post('register/', { username, email, password });
+    // Auto-login after successful registration
+    return login(username, password);
   };
 
   const logout = () => {
@@ -41,10 +46,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => useContext(AuthContext);
+

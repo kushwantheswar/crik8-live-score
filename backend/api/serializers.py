@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    email = serializers.EmailField(required=False, allow_blank=True, default='')
 
     class Meta:
         model = User
@@ -12,6 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+
 
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:

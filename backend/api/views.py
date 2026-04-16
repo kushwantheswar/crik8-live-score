@@ -1,6 +1,7 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, generics
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from .models import Tournament, Team, Player, Match, ScoreUpdate, TournamentApplication
 from .serializers import (
@@ -8,6 +9,22 @@ from .serializers import (
     PlayerSerializer, MatchSerializer, ScoreUpdateSerializer, 
     TournamentApplicationSerializer
 )
+
+# Public registration endpoint
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+# Get current authenticated user's profile
+class MeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
