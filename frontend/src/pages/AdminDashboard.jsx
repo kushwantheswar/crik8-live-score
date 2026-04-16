@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Plus, Users, Trophy, SwatchBook, Save, Trash2, User, MapPin } from 'lucide-react';
+import { Plus, Users, Trophy, SwatchBook, Save, Trash2, User, MapPin, Activity } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('matches');
@@ -21,6 +21,9 @@ const AdminDashboard = () => {
   const [newTournament, setNewTournament] = useState({ 
     name: '', description: '', format_type: 'T20', start_date: '', end_date: '' 
   });
+  
+  const [selectedMatchForScore, setSelectedMatchForScore] = useState(null);
+  const [scoreForm, setScoreForm] = useState({ status: '', score_details: '', commentary: '' });
 
   useEffect(() => {
     fetchData();
@@ -86,6 +89,26 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleUpdateScore = async (e) => {
+    e.preventDefault();
+    try {
+      if (scoreForm.status !== selectedMatchForScore.status) {
+         await api.patch(`matches/${selectedMatchForScore.id}/`, { status: scoreForm.status });
+      }
+      if (scoreForm.score_details) {
+         await api.post(`matches/${selectedMatchForScore.id}/update_score/`, {
+            score_details: scoreForm.score_details,
+            commentary: scoreForm.commentary
+         });
+      }
+      setSelectedMatchForScore(null);
+      setScoreForm({ status: '', score_details: '', commentary: '' });
+      fetchData();
+    } catch (err) {
+      alert("Error updating match score");
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -135,12 +158,21 @@ const AdminDashboard = () => {
                        <div className="text-xs text-slate-500">{new Date(match.match_date).toLocaleString()}</div>
                      </td>
                      <td className="p-6">
-                       <span className="px-3 py-1 bg-primary-500/10 text-primary-400 rounded-full text-xs font-bold uppercase tracking-tight">
+                       <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-tight ${match.status === 'Ongoing' ? 'bg-red-500/10 text-red-500 animate-pulse' : match.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-primary-500/10 text-primary-400'}`}>
                          {match.status}
                        </span>
                      </td>
                      <td className="p-6 text-right">
-                       <button className="p-2 text-slate-500 hover:text-white"><Plus size={18} /></button>
+                       <button 
+                          onClick={() => {
+                             setSelectedMatchForScore(match);
+                             setScoreForm({ status: match.status, score_details: match.latest_score?.score_details || '', commentary: '' });
+                          }}
+                          className="p-2 text-slate-500 hover:text-white"
+                          title="Live Update Scoreboard"
+                       >
+                         <Activity size={18} />
+                       </button>
                        <button className="p-2 text-slate-500 hover:text-red-400"><Trash2 size={18} /></button>
                      </td>
                    </tr>
@@ -238,8 +270,14 @@ const AdminDashboard = () => {
         <div className="space-y-6">
           <div className="glass p-8 rounded-3xl border-primary-500/20">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <Plus className="text-primary-500" />
-              {activeTab === 'teams' ? 'Add New Team' : activeTab === 'players' ? 'Player Invites' : activeTab === 'tournaments' ? 'Create Tournament' : 'Schedule Match'}
+              {selectedMatchForScore ? (
+                <> <Activity className="text-red-500 animate-pulse" /> Live Scoreboard Updater </>
+              ) : (
+                <>
+                  <Plus className="text-primary-500" />
+                  {activeTab === 'teams' ? 'Add New Team' : activeTab === 'players' ? 'Player Invites' : activeTab === 'tournaments' ? 'Create Tournament' : 'Schedule Match'}
+                </>
+              )}
             </h3>
             
             {activeTab === 'players' ? (
@@ -281,6 +319,38 @@ const AdminDashboard = () => {
                   Save Team
                 </button>
               </form>
+            ) : selectedMatchForScore ? (
+               <form onSubmit={handleUpdateScore} className="space-y-4">
+                 <div className="text-sm font-bold text-primary-400 mb-4 bg-primary-500/10 p-3 rounded-lg border border-primary-500/20">
+                   {selectedMatchForScore.team1_name} vs {selectedMatchForScore.team2_name}
+                 </div>
+                 
+                 <div>
+                   <label className="block text-xs uppercase text-slate-500 font-bold mb-1">Match Status</label>
+                   <select className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white outline-none" value={scoreForm.status} onChange={e => setScoreForm({...scoreForm, status: e.target.value})}>
+                       <option value="Upcoming">Upcoming</option>
+                       <option value="Ongoing">Ongoing (Live)</option>
+                       <option value="Completed">Completed</option>
+                   </select>
+                 </div>
+                 
+                 <div>
+                   <label className="block text-xs uppercase text-slate-500 font-bold mb-1">Score Display (e.g. IND 150/2)</label>
+                   <input className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white outline-none" placeholder="Target 180 (15.5)" value={scoreForm.score_details} onChange={e => setScoreForm({...scoreForm, score_details: e.target.value})}/>
+                 </div>
+                 
+                 <div>
+                   <label className="block text-xs uppercase text-slate-500 font-bold mb-1">Recent Commentary / Event</label>
+                   <textarea className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 h-24 text-white outline-none" placeholder="Kohli hits a boundary down the leg side..." value={scoreForm.commentary} onChange={e => setScoreForm({...scoreForm, commentary: e.target.value})}></textarea>
+                 </div>
+                 
+                 <div className="flex gap-2">
+                   <button type="submit" className="flex-1 py-4 bg-red-600 hover:bg-red-500 rounded-xl font-bold transition-all shadow-lg shadow-red-600/20 text-white flex items-center justify-center gap-2">
+                     <Save size={16} /> Publish Score
+                   </button>
+                   <button type="button" onClick={() => setSelectedMatchForScore(null)} className="px-6 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold">Cancel</button>
+                 </div>
+               </form>
             ) : (
                 <form onSubmit={handleCreateMatch} className="space-y-4">
                    <select 
