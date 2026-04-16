@@ -87,11 +87,11 @@ const Home = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {matches.length > 0 ? matches.map((match) => (
-            <motion.div 
-              key={match.id}
-              whileHover={{ y: -5 }}
-              className="glass p-6 rounded-2xl space-y-4 hover:border-primary-500/50 transition-colors"
-            >
+            <Link key={match.id} to={`/match/${match.id}`}>
+               <motion.div 
+                 whileHover={{ y: -5 }}
+                 className="glass p-6 rounded-2xl space-y-4 hover:border-primary-500/50 transition-colors h-full cursor-pointer"
+               >
               <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-widest">
                 <span>{new Date(match.match_date).toLocaleDateString()}</span>
                 <span className={`px-2 py-1 rounded-md ${match.status === 'Ongoing' ? 'bg-red-500/20 text-red-500 animate-pulse' : 'bg-slate-800'}`}>
@@ -118,6 +118,7 @@ const Home = () => {
                 )}
               </div>
             </motion.div>
+          </Link>
           )) : (
             <div className="col-span-3 text-center py-20 glass rounded-3xl border-dashed">
               <Activity className="mx-auto text-slate-700 mb-4" size={48} />
