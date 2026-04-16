@@ -18,6 +18,9 @@ const AdminDashboard = () => {
   const [newMatch, setNewMatch] = useState({ 
     tournament: '', team1: '', team2: '', match_date: '', status: 'Upcoming' 
   });
+  const [newTournament, setNewTournament] = useState({ 
+    name: '', description: '', format_type: 'T20', start_date: '', end_date: '' 
+  });
 
   useEffect(() => {
     fetchData();
@@ -59,6 +62,27 @@ const AdminDashboard = () => {
       fetchData();
     } catch (err) {
       alert("Error creating match");
+    }
+  };
+
+  const handleCreateTournament = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('tournaments/', newTournament);
+      setNewTournament({ name: '', description: '', format_type: 'T20', start_date: '', end_date: '' });
+      fetchData();
+    } catch (err) {
+      alert("Error creating tournament");
+    }
+  };
+
+  const handleAssignPlayer = async (teamId, playerId) => {
+    if (!playerId) return;
+    try {
+      await api.patch(`players/${playerId}/`, { team: teamId });
+      fetchData();
+    } catch (err) {
+      alert("Error assigning player");
     }
   };
 
@@ -121,13 +145,40 @@ const AdminDashboard = () => {
                      </td>
                    </tr>
                  ))}
+                 {activeTab === 'tournaments' && tournaments.map(tour => (
+                   <tr key={tour.id} className="hover:bg-white/2">
+                     <td className="p-6">
+                        <div className="font-bold">{tour.name}</div>
+                        <div className="text-xs text-slate-500">{tour.description}</div>
+                     </td>
+                     <td className="p-6">
+                        <div className="font-bold text-primary-400 uppercase">{tour.format_type}</div>
+                        <div className="text-xs text-slate-500">{tour.start_date} to {tour.end_date}</div>
+                     </td>
+                     <td className="p-6 text-right">
+                       <button className="p-2 text-slate-500 hover:text-red-400"><Trash2 size={18} /></button>
+                     </td>
+                   </tr>
+                 ))}
                  {activeTab === 'teams' && teams.map(team => (
                    <tr key={team.id}>
                      <td className="p-6">
                         <div className="font-bold">{team.name}</div>
                         <div className="text-xs text-slate-500">Captain: {team.captain_name}</div>
                      </td>
-                     <td className="p-6">{team.players?.length || 0} Players</td>
+                     <td className="p-6">
+                        <div className="mb-2 text-sm">{team.players?.length || 0} Players</div>
+                        <select 
+                          className="bg-slate-800 border border-white/10 rounded-lg px-2 py-1 text-xs outline-none w-32" 
+                          onChange={(e) => handleAssignPlayer(team.id, e.target.value)} 
+                          value=""
+                        >
+                          <option value="">+ Add Player</option>
+                          {players.filter(p => !p.team).map(p => (
+                             <option key={p.id} value={p.id}>{p.name} ({p.role})</option>
+                          ))}
+                        </select>
+                     </td>
                      <td className="p-6 text-right">
                        <button className="p-2 text-slate-500 hover:text-red-400"><Trash2 size={18} /></button>
                      </td>
@@ -188,7 +239,7 @@ const AdminDashboard = () => {
           <div className="glass p-8 rounded-3xl border-primary-500/20">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
               <Plus className="text-primary-500" />
-              {activeTab === 'teams' ? 'Add New Team' : activeTab === 'players' ? 'Player Invites' : 'Schedule Match'}
+              {activeTab === 'teams' ? 'Add New Team' : activeTab === 'players' ? 'Player Invites' : activeTab === 'tournaments' ? 'Create Tournament' : 'Schedule Match'}
             </h3>
             
             {activeTab === 'players' ? (
@@ -196,6 +247,22 @@ const AdminDashboard = () => {
                 <User className="mx-auto text-slate-500 mb-2" size={48} />
                 <p className="text-slate-400 text-sm">Players register themselves from the frontend via the Profile page.</p>
               </div>
+            ) : activeTab === 'tournaments' ? (
+              <form onSubmit={handleCreateTournament} className="space-y-4">
+                 <input className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white" placeholder="Tournament Name" value={newTournament.name} onChange={e => setNewTournament({...newTournament, name: e.target.value})} required/>
+                 <select className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white" value={newTournament.format_type} onChange={e => setNewTournament({...newTournament, format_type: e.target.value})}>
+                    <option value="T10">T10 (10 Overs)</option>
+                    <option value="T20">T20 (20 Overs)</option>
+                    <option value="ODI">ODI (50 Overs)</option>
+                    <option value="TEST">Test Match (Days)</option>
+                 </select>
+                 <div className="flex gap-2">
+                   <input type="date" className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white" value={newTournament.start_date} onChange={e => setNewTournament({...newTournament, start_date: e.target.value})} required/>
+                   <input type="date" className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white" value={newTournament.end_date} onChange={e => setNewTournament({...newTournament, end_date: e.target.value})} required/>
+                 </div>
+                 <textarea className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 h-24 text-white" placeholder="Description" value={newTournament.description} onChange={e => setNewTournament({...newTournament, description: e.target.value})} required></textarea>
+                 <button className="w-full py-4 bg-primary-600 hover:bg-primary-500 rounded-xl font-bold transition-all shadow-lg shadow-primary-600/20 text-white">Create Tournament</button>
+              </form>
             ) : activeTab === 'teams' ? (
               <form onSubmit={handleCreateTeam} className="space-y-4">
                 <input 

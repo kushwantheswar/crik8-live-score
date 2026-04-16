@@ -2,14 +2,21 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Tournament(models.Model):
+    FORMAT_CHOICES = [
+        ('T10', 'T10 (10 Overs)'),
+        ('T20', 'T20 (20 Overs)'),
+        ('ODI', 'ODI (50 Overs)'),
+        ('TEST', 'Test Match (Days)'),
+    ]
     name = models.CharField(max_length=200)
     description = models.TextField()
+    format_type = models.CharField(max_length=20, choices=FORMAT_CHOICES, default='T20')
     start_date = models.DateField()
     end_date = models.DateField()
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.get_format_type_display()})"
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
