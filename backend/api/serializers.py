@@ -47,6 +47,7 @@ class ScoreUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScoreUpdate
         fields = '__all__'
+        extra_kwargs = {'match': {'read_only': True}}
 
 class MatchSerializer(serializers.ModelSerializer):
     team1_name = serializers.CharField(source='team1.name', read_only=True)

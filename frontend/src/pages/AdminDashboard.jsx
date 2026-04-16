@@ -135,7 +135,9 @@ const AdminDashboard = () => {
       setScoreForm({ status: '', score_details: '', commentary: '' });
       fetchData();
     } catch (err) {
-      alert("Error updating match score");
+      console.error(err);
+      const detail = err.response?.data ? JSON.stringify(err.response.data) : err.message;
+      alert("Error updating match score: " + detail);
     }
   };
 
