@@ -53,6 +53,9 @@ class Match(models.Model):
     match_date = models.DateTimeField()
     status = models.CharField(max_length=20, choices=[('Upcoming', 'Upcoming'), ('Ongoing', 'Ongoing'), ('Completed', 'Completed')], default='Upcoming')
     toss_details = models.CharField(max_length=255, blank=True, null=True)
+    current_striker = models.ForeignKey(Player, related_name='active_strikes', on_delete=models.SET_NULL, null=True, blank=True)
+    current_non_striker = models.ForeignKey(Player, related_name='active_non_strikes', on_delete=models.SET_NULL, null=True, blank=True)
+    current_bowler = models.ForeignKey(Player, related_name='active_bowls', on_delete=models.SET_NULL, null=True, blank=True)
     result = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
