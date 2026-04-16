@@ -52,6 +52,9 @@ class ScoreUpdateSerializer(serializers.ModelSerializer):
 class MatchSerializer(serializers.ModelSerializer):
     team1_name = serializers.CharField(source='team1.name', read_only=True)
     team2_name = serializers.CharField(source='team2.name', read_only=True)
+    striker_name = serializers.CharField(source='current_striker.name', read_only=True)
+    non_striker_name = serializers.CharField(source='current_non_striker.name', read_only=True)
+    bowler_name = serializers.CharField(source='current_bowler.name', read_only=True)
     latest_score = serializers.SerializerMethodField()
 
     class Meta:
