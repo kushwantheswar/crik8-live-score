@@ -25,7 +25,8 @@ const AdminDashboard = () => {
   const [selectedMatchForScore, setSelectedMatchForScore] = useState(null);
   const [scoreForm, setScoreForm] = useState({ 
     status: '', score_details: '', commentary: '', toss_details: '',
-    current_striker: '', current_non_striker: '', current_bowler: ''
+    current_striker: '', current_non_striker: '', current_bowler: '',
+    last_event: null
   });
 
   useEffect(() => {
@@ -184,7 +185,13 @@ const AdminDashboard = () => {
     setScoreForm({
         ...scoreForm,
         score_details: `${runs}/${wickets}`,
-        commentary: commentary
+        commentary: commentary,
+        last_event: {
+          runs: type === 'run' ? value : (type === 'extra' ? 1 : 0),
+          is_wicket: type === 'wicket',
+          is_extra: type === 'extra',
+          extra_type: value
+        }
     });
   };
 
