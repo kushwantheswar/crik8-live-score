@@ -143,11 +143,19 @@ const AdminDashboard = () => {
       if (scoreForm.score_details) {
          await api.post(`matches/${selectedMatchForScore.id}/update_score/`, {
             score_details: scoreForm.score_details,
-            commentary: scoreForm.commentary
+            commentary: scoreForm.commentary,
+            runs: scoreForm.last_event?.runs || 0,
+            is_wicket: scoreForm.last_event?.is_wicket || false,
+            is_extra: scoreForm.last_event?.is_extra || false,
+            extra_type: scoreForm.last_event?.extra_type || null
          });
       }
       setSelectedMatchForScore(null);
-      setScoreForm({ status: '', score_details: '', commentary: '' });
+      setScoreForm({ 
+        status: '', score_details: '', commentary: '', toss_details: '', 
+        current_striker: '', current_non_striker: '', current_bowler: '',
+        last_event: null
+      });
       fetchData();
     } catch (err) {
       console.error(err);
