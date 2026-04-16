@@ -139,6 +139,39 @@ const AdminDashboard = () => {
     }
   };
 
+  const quickUpdate = (type, value) => {
+    let currentScore = scoreForm.score_details || "";
+    let runs = 0;
+    let wickets = 0;
+    
+    // Simple logic to try and parse existing score if it's like "150/2"
+    const match = currentScore.match(/(\d+)\/(\d+)/);
+    if (match) {
+        runs = parseInt(match[1]);
+        wickets = parseInt(match[2]);
+    } else if (currentScore && !isNaN(currentScore)) {
+        runs = parseInt(currentScore);
+    }
+
+    let commentary = "";
+    if (type === 'run') {
+        runs += value;
+        commentary = value === 4 ? "FOUR! Stunning shot." : value === 6 ? "SIX! Over the ropes." : `${value} run(s) taken.`;
+    } else if (type === 'wicket') {
+        wickets += 1;
+        commentary = "WICKET! The batsman is out.";
+    } else if (type === 'extra') {
+        runs += 1;
+        commentary = value === 'Wd' ? "Wide ball." : "No ball.";
+    }
+
+    setScoreForm({
+        ...scoreForm,
+        score_details: `${runs}/${wickets}`,
+        commentary: commentary
+    });
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -374,9 +407,22 @@ const AdminDashboard = () => {
                  </div>
                  
                  <div>
-                   <label className="block text-xs uppercase text-slate-500 font-bold mb-1">Score Display (e.g. IND 150/2)</label>
-                   <input className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white outline-none" placeholder="Target 180 (15.5)" value={scoreForm.score_details} onChange={e => setScoreForm({...scoreForm, score_details: e.target.value})}/>
-                 </div>
+                    <label className="block text-xs uppercase text-slate-500 font-bold mb-1">Score Display (e.g. 150/2)</label>
+                    <input className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white outline-none" placeholder="150/2" value={scoreForm.score_details} onChange={e => setScoreForm({...scoreForm, score_details: e.target.value})}/>
+                  </div>
+
+                  {/* Quick Scoring Buttons */}
+                  <div className="space-y-3 p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <label className="block text-[10px] uppercase text-slate-500 font-black mb-1">Quick Scorer</label>
+                    <div className="grid grid-cols-4 gap-2">
+                       {[0, 1, 2, 3, 4, 6].map(r => (
+                         <button key={r} type="button" onClick={() => quickUpdate('run', r)} className="py-2 bg-slate-800 hover:bg-primary-600 rounded-lg font-bold text-sm transition-colors">{r}</button>
+                       ))}
+                       <button type="button" onClick={() => quickUpdate('extra', 'Wd')} className="py-2 bg-amber-900/40 text-amber-500 border border-amber-500/20 hover:bg-amber-500 hover:text-white rounded-lg font-bold text-sm transition-all">Wd</button>
+                       <button type="button" onClick={() => quickUpdate('extra', 'Nb')} className="py-2 bg-amber-900/40 text-amber-500 border border-amber-500/20 hover:bg-amber-500 hover:text-white rounded-lg font-bold text-sm transition-all">Nb</button>
+                       <button type="button" onClick={() => quickUpdate('wicket')} className="col-span-4 py-2 bg-red-900/40 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white rounded-lg font-black text-sm uppercase transition-all tracking-widest">Wicket!</button>
+                    </div>
+                  </div>
                  
                  <div>
                    <label className="block text-xs uppercase text-slate-500 font-bold mb-1">Recent Commentary / Event</label>
