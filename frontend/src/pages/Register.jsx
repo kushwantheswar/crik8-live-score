@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const PasswordStrength = ({ password }) => {
   const checks = [
-    { label: 'At least 8 characters', ok: password.length >= 8 },
+    { label: 'At least 6 characters', ok: password.length >= 6 },
     { label: 'Contains a number', ok: /\d/.test(password) },
     { label: 'Contains a letter', ok: /[a-zA-Z]/.test(password) },
   ];
@@ -63,8 +63,8 @@ const Register = () => {
       setError('Passwords do not match.');
       return;
     }
-    if (form.password.length < 8) {
-      setError('Password must be at least 8 characters.');
+    if (form.password.length < 6) {
+      setError('Password must be at least 6 characters.');
       return;
     }
 
