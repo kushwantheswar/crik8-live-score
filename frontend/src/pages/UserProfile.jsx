@@ -16,6 +16,8 @@ const UserProfile = () => {
     name: '',
     date_of_birth: '',
     role: 'Batsman',
+    batting_style: 'Right-hand bat',
+    bowling_style: 'Right-arm Fast',
     country: 'India',
     state: '',
     city: '',
@@ -156,6 +158,38 @@ const UserProfile = () => {
                   </select>
                 </div>
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-400 mb-2">Batting Style</label>
+                <div className="relative">
+                  <select required
+                    className="w-full bg-slate-900/60 border border-white/10 rounded-xl py-3 px-4 outline-none focus:border-emerald-500/50 text-white appearance-none" 
+                    value={formData.batting_style} onChange={e => setFormData({...formData, batting_style: e.target.value})} 
+                  >
+                    <option value="">Select Batting Style</option>
+                    <option>Right-hand bat</option>
+                    <option>Left-hand bat</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-slate-400 mb-2">Bowling Style</label>
+                <div className="relative">
+                  <select required
+                    className="w-full bg-slate-900/60 border border-white/10 rounded-xl py-3 px-4 outline-none focus:border-emerald-500/50 text-white appearance-none" 
+                    value={formData.bowling_style} onChange={e => setFormData({...formData, bowling_style: e.target.value})} 
+                  >
+                    <option value="None">None (Doesn't Bowl)</option>
+                    <option>Right-arm Fast</option>
+                    <option>Right-arm Medium</option>
+                    <option>Right-arm Spin (Off break/Leg break)</option>
+                    <option>Left-arm Fast</option>
+                    <option>Left-arm Medium</option>
+                    <option>Left-arm Spin (Orthodox/Unorthodox)</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
             <h3 className="text-xl font-bold text-white mt-10 mb-4 border-b border-white/10 pb-2">Location & Contact</h3>
@@ -242,6 +276,8 @@ const UserProfile = () => {
                   <div className="space-y-4">
                     <p className="flex justify-between border-b border-white/5 pb-2"><span className="text-slate-400 flex gap-2 items-center"><UserIcon size={16}/> Name</span> <span className="font-bold text-white">{profile.name}</span></p>
                     <p className="flex justify-between border-b border-white/5 pb-2"><span className="text-slate-400 flex gap-2 items-center"><Target size={16}/> Role</span> <span className="font-bold text-emerald-400">{profile.role}</span></p>
+                    <p className="flex justify-between border-b border-white/5 pb-2"><span className="text-slate-400">Batting</span> <span className="font-medium text-white">{profile.batting_style}</span></p>
+                    <p className="flex justify-between border-b border-white/5 pb-2"><span className="text-slate-400">Bowling</span> <span className="font-medium text-white">{profile.bowling_style === 'None' ? '-' : profile.bowling_style}</span></p>
                     <p className="flex justify-between border-b border-white/5 pb-2"><span className="text-slate-400 flex gap-2 items-center"><Calendar size={16}/> DOB</span> <span className="font-bold text-white">{profile.date_of_birth}</span></p>
                   </div>
                 </div>
