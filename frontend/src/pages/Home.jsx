@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Table, Calendar, Users, ChevronRight, Activity } from 'lucide-react';
+import { Table, Calendar, Users, ChevronRight, Activity, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Home = () => {
