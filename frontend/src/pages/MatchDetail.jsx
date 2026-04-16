@@ -168,14 +168,26 @@ const MatchDetail = () => {
                             <div className="flex justify-between items-center group">
                                <div className="flex items-center gap-2">
                                   <div className="w-1.5 h-1.5 bg-primary-500 rounded-full shadow-[0_0_8px_rgba(var(--primary-500),0.8)]"></div>
-                                  <span className="font-bold text-white text-lg">{match.striker_name || 'Striker'}</span>
+                                   {match.current_striker ? (
+                                     <Link to={`/player/${match.current_striker}`} className="font-bold text-white text-lg hover:text-primary-400 transition-colors">
+                                       {match.striker_name}
+                                     </Link>
+                                   ) : (
+                                     <span className="font-bold text-white text-lg">Striker</span>
+                                   )}
                                </div>
                                <span className="text-primary-400 font-black text-xl italic">0*</span>
                             </div>
                             <div className="flex justify-between items-center opacity-60">
                                <div className="flex items-center gap-2">
                                   <div className="w-1.5 h-1.5 bg-transparent rounded-full"></div>
-                                  <span className="font-bold text-white text-lg">{match.non_striker_name || 'Non-Striker'}</span>
+                                   {match.current_non_striker ? (
+                                     <Link to={`/player/${match.current_non_striker}`} className="font-bold text-white text-lg hover:text-primary-400 transition-colors">
+                                       {match.non_striker_name}
+                                     </Link>
+                                   ) : (
+                                     <span className="font-bold text-white text-lg">Non-Striker</span>
+                                   )}
                                </div>
                                <span className="text-white font-black text-xl italic">0</span>
                             </div>
@@ -184,7 +196,13 @@ const MatchDetail = () => {
                       <div className="glass p-6 rounded-2xl border-white/5 bg-slate-900/40">
                          <div className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-4">Bowling</div>
                          <div className="flex justify-between items-center">
-                            <span className="font-bold text-white text-lg">{match.bowler_name || 'Current Bowler'}</span>
+                             {match.current_bowler ? (
+                               <Link to={`/player/${match.current_bowler}`} className="font-bold text-white text-lg hover:text-primary-400 transition-colors">
+                                 {match.bowler_name}
+                               </Link>
+                             ) : (
+                               <span className="font-bold text-white text-lg">Current Bowler</span>
+                             )}
                             <div className="text-right">
                                <div className="text-primary-400 font-black text-xl italic">0-0</div>
                                <div className="text-[10px] uppercase text-slate-500 font-bold tracking-tight">(0.0)</div>
@@ -238,7 +256,11 @@ const MatchDetail = () => {
                       <tbody className="divide-y divide-white/5 text-sm">
                          {match.batting_scores?.filter(s => s.player_team === team.id || true).map(score => (
                             <tr key={score.id} className="hover:bg-white/5 transition-colors">
-                              <td className="p-4 font-bold text-white">{score.player_name} {score.is_out ? '(out)' : '*'}</td>
+                              <td className="p-4 font-bold text-white">
+                                <Link to={`/player/${score.player}`} className="hover:text-primary-400 transition-colors">
+                                  {score.player_name} {score.is_out ? '(out)' : '*'}
+                                </Link>
+                              </td>
                               <td className="p-4 text-center">{score.runs}</td>
                               <td className="p-4 text-center">{score.balls}</td>
                               <td className="p-4 text-center">{score.fours}</td>
@@ -270,10 +292,14 @@ const MatchDetail = () => {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5 text-sm">
-                         {match.bowling_scores?.map(score => (
-                            <tr key={score.id} className="hover:bg-white/5 transition-colors">
-                              <td className="p-4 font-bold text-white">{score.player_name}</td>
-                              <td className="p-4 text-center">{score.overs}</td>
+                          {match.bowling_scores?.map(score => (
+                             <tr key={score.id} className="hover:bg-white/5 transition-colors">
+                               <td className="p-4 font-bold text-white">
+                                 <Link to={`/player/${score.player}`} className="hover:text-primary-400 transition-colors">
+                                   {score.player_name}
+                                 </Link>
+                               </td>
+                               <td className="p-4 text-center">{score.overs}</td>
                               <td className="p-4 text-center">{score.maidens}</td>
                               <td className="p-4 text-center">{score.runs_conceded}</td>
                               <td className="p-4 text-center">{score.wickets}</td>
@@ -296,10 +322,10 @@ const MatchDetail = () => {
                  <h3 className="text-xl font-black text-white mb-4 bg-slate-900/50 p-4 rounded-xl text-center border border-white/5">{match.team1_name}</h3>
                  <div className="space-y-2">
                    {team1Squad.map(p => (
-                     <div key={p.id} className="flex justify-between items-center p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+                     <Link key={p.id} to={`/player/${p.id}`} className="flex justify-between items-center p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
                        <span className="font-bold text-white">{p.name}</span>
                        <span className="text-xs uppercase bg-primary-500/20 text-primary-400 px-3 py-1 rounded-full">{p.role}</span>
-                     </div>
+                     </Link>
                    ))}
                    {team1Squad.length === 0 && <p className="text-center text-slate-500 py-4">Squad unannounced</p>}
                  </div>
@@ -308,10 +334,10 @@ const MatchDetail = () => {
                  <h3 className="text-xl font-black text-white mb-4 bg-slate-900/50 p-4 rounded-xl text-center border border-white/5">{match.team2_name}</h3>
                  <div className="space-y-2">
                    {team2Squad.map(p => (
-                     <div key={p.id} className="flex justify-between items-center p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+                     <Link key={p.id} to={`/player/${p.id}`} className="flex justify-between items-center p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
                        <span className="font-bold text-white">{p.name}</span>
                        <span className="text-xs uppercase bg-primary-500/20 text-primary-400 px-3 py-1 rounded-full">{p.role}</span>
-                     </div>
+                     </Link>
                    ))}
                    {team2Squad.length === 0 && <p className="text-center text-slate-500 py-4">Squad unannounced</p>}
                  </div>

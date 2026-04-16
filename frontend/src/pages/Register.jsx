@@ -81,12 +81,16 @@ const Register = () => {
       else navigate('/');
     } catch (err) {
       setSuccess(false);
-      const data = err?.response?.data;
-      if (data?.username) setError(`Username: ${Array.isArray(data.username) ? data.username[0] : data.username}`);
-      else if (data?.email) setError(`Email: ${Array.isArray(data.email) ? data.email[0] : data.email}`);
-      else if (data?.password) setError(`Password: ${Array.isArray(data.password) ? data.password[0] : data.password}`);
-      else if (data?.detail) setError(data.detail);
-      else setError('Registration failed. Please try again.');
+      if (!err.response) {
+        setError('Connection to server failed. Please ensure the backend is running.');
+      } else {
+        const data = err.response.data;
+        if (data?.username) setError(`Username: ${Array.isArray(data.username) ? data.username[0] : data.username}`);
+        else if (data?.email) setError(`Email: ${Array.isArray(data.email) ? data.email[0] : data.email}`);
+        else if (data?.password) setError(`Password: ${Array.isArray(data.password) ? data.password[0] : data.password}`);
+        else if (data?.detail) setError(data.detail);
+        else setError('Registration failed. Please check your details and try again.');
+      }
     } finally {
       setLoading(false);
     }

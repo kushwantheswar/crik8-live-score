@@ -41,7 +41,7 @@ const Home = () => {
       <section className="relative rounded-3xl overflow-hidden aspect-[21/9] flex items-center p-12">
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent z-10"></div>
         <img 
-          src="https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=2067&auto=format&fit=crop" 
+          src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2070&auto=format&fit=crop" 
           alt="Cricket Stadium" 
           className="absolute inset-0 w-full h-full object-cover"
         />

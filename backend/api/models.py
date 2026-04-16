@@ -33,7 +33,9 @@ class Player(models.Model):
     role = models.CharField(max_length=50) # e.g., Batsman, Bowler, Wicket Keeper, All-rounder
     batting_style = models.CharField(max_length=50, blank=True, null=True) # e.g. Right-hand bat, Left-hand bat
     bowling_style = models.CharField(max_length=50, blank=True, null=True) # e.g. Right-arm Fast, Left-arm Spin
+    image_url = models.URLField(blank=True, null=True)
     date_of_birth = models.DateField(null=True, blank=True)
+    birth_place = models.CharField(max_length=255, blank=True, null=True)
     country = models.CharField(max_length=100, default='India')
     state = models.CharField(max_length=100, blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)

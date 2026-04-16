@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminLogin from './pages/AdminLogin';
 import UserProfile from './pages/UserProfile';
+import PlayerDetail from './pages/PlayerDetail';
 import MatchDetail from './pages/MatchDetail';
 import Navbar from './components/Navbar';
 
@@ -32,6 +33,7 @@ function App() {
               <Route path="/admin-login" element={<AdminLogin />} />
               <Route path="/register" element={<Register />} />
               <Route path="/match/:id" element={<MatchDetail />} />
+              <Route path="/player/:id" element={<PlayerDetail />} />
               <Route 
                 path="/profile" 
                 element={

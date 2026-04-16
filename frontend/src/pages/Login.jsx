@@ -25,7 +25,13 @@ const Login = () => {
         navigate('/');
       }
     } catch (err) {
-      setError('Invalid username or password');
+      if (!err.response) {
+        setError('Connection to server failed. Please ensure the backend is running.');
+      } else if (err.response.status === 401) {
+        setError('Invalid username or password.');
+      } else {
+        setError('An unexpected error occurred. Please try again later.');
+      }
     }
     setLoading(false);
   };

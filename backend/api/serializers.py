@@ -28,9 +28,89 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class PlayerSerializer(serializers.ModelSerializer):
+    batting_career = serializers.SerializerMethodField()
+    bowling_career = serializers.SerializerMethodField()
+    batting_form = serializers.SerializerMethodField()
+    bowling_form = serializers.SerializerMethodField()
+    team_name = serializers.CharField(source='team.name', read_only=True)
+
     class Meta:
         model = Player
         fields = '__all__'
+
+    def get_batting_career(self, obj):
+        stats = {}
+        for fmt, label in Tournament.FORMAT_CHOICES:
+            scores = BattingScore.objects.filter(player=obj, match__tournament__format_type=fmt)
+            if scores.exists():
+                total_runs = sum(s.runs for s in scores)
+                total_balls = sum(s.balls for s in scores)
+                innings = scores.count()
+                highest = max(s.runs for s in scores)
+                fours = sum(s.fours for s in scores)
+                sixes = sum(s.sixes for s in scores)
+                not_outs = scores.filter(is_out=False).count()
+                avg = total_runs / (innings - not_outs) if (innings - not_outs) > 0 else total_runs
+                sr = (total_runs / total_balls * 100) if total_balls > 0 else 0
+                
+                stats[fmt] = {
+                    'matches': innings, # simplified: each score record is a match
+                    'innings': innings,
+                    'runs': total_runs,
+                    'balls': total_balls,
+                    'highest': highest,
+                    'avg': round(avg, 2),
+                    'sr': round(sr, 2),
+                    'fours': fours,
+                    'sixes': sixes,
+                    'not_out': not_outs
+                }
+        return stats
+
+    def get_bowling_career(self, obj):
+        stats = {}
+        for fmt, label in Tournament.FORMAT_CHOICES:
+            scores = BowlingScore.objects.filter(player=obj, match__tournament__format_type=fmt)
+            if scores.exists():
+                total_wickets = sum(s.wickets for s in scores)
+                total_runs = sum(s.runs_conceded for s in scores)
+                total_balls = sum(s.balls_bowled for s in scores)
+                matches = scores.count()
+                maidens = sum(s.maidens for s in scores)
+                
+                avg = total_runs / total_wickets if total_wickets > 0 else 0
+                eco = (total_runs / (total_balls / 6)) if total_balls > 0 else 0
+                sr = total_balls / total_wickets if total_wickets > 0 else 0
+
+                stats[fmt] = {
+                    'matches': matches,
+                    'wickets': total_wickets,
+                    'runs': total_runs,
+                    'balls': total_balls,
+                    'maidens': maidens,
+                    'avg': round(avg, 2),
+                    'eco': round(eco, 2),
+                    'sr': round(sr, 2)
+                }
+        return stats
+
+    def get_batting_form(self, obj):
+        scores = BattingScore.objects.filter(player=obj).order_by('-match__match_date')[:5]
+        return [{
+            'score': f"{s.runs}{'*' if not s.is_out else ''}({s.balls})",
+            'oppn': s.match.team2.name if s.match.team1.players.filter(id=obj.id).exists() else s.match.team1.name,
+            'format': s.match.tournament.format_type,
+            'date': s.match.match_date.strftime('%d %b %y')
+        } for s in scores]
+
+    def get_bowling_form(self, obj):
+        scores = BowlingScore.objects.filter(player=obj).order_by('-match__match_date')[:5]
+        return [{
+            'wickets': f"{s.wickets}-{s.runs_conceded}",
+            'oppn': s.match.team2.name if s.match.team1.players.filter(id=obj.id).exists() else s.match.team1.name,
+            'format': s.match.tournament.format_type,
+            'date': s.match.match_date.strftime('%d %b %y')
+        } for s in scores]
 
 class TeamSerializer(serializers.ModelSerializer):
     players = PlayerSerializer(many=True, read_only=True)
